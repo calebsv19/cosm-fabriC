@@ -111,7 +111,7 @@ $(BIN): $(SRC) $(KIT_GRAPH_STRUCT_DIR)/build/libkit_graph_struct.a $(KIT_UI_DIR)
 
 RUN_ARGS ?=
 REPO_ROOT := ../../..
-DEMO_DB ?= $(if $(wildcard $(HOME)/Desktop/Data),$(HOME)/Desktop/Data/codework_mem_console.sqlite,shared/showcase/mem_console/demo/demo_mem_console.sqlite)
+DEMO_DB ?= $(if $(wildcard $(HOME)/Desktop/CodeWork/data),$(HOME)/Desktop/CodeWork/data/codework_mem_console.sqlite,shared/showcase/mem_console/demo/demo_mem_console.sqlite)
 
 run: $(BIN)
 	cd $(REPO_ROOT) && ./shared/showcase/mem_console/$(BIN) --db $(DEMO_DB) $(RUN_ARGS)

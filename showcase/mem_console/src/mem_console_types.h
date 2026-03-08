@@ -152,6 +152,12 @@ typedef struct MemConsoleState {
     KitGraphStructEdgeLabelLayout graph_layout_edge_label_layouts[MEM_CONSOLE_GRAPH_EDGE_LIMIT];
     char graph_draw_edge_labels[MEM_CONSOLE_GRAPH_EDGE_LIMIT][96];
     char graph_draw_node_labels[MEM_CONSOLE_GRAPH_NODE_LIMIT][192];
+    char graph_hud_id_line[48];
+    char graph_hud_title_raw[176];
+    char graph_hud_title[176];
+    char graph_hud_flags[96];
+    char graph_hud_body[256];
+    char graph_hud_wrapped_lines[4][256];
     int graph_drag_active;
     int graph_drag_moved;
     int graph_click_armed;

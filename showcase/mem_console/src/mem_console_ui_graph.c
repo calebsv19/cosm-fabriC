@@ -584,12 +584,6 @@ CoreResult mem_console_ui_graph_draw_preview(const KitRenderContext *render_ctx,
     uint32_t i;
     int has_graph_data = 0;
     int hovered_node_index = -1;
-    char hud_title[176];
-    char hud_title_sanitized[176];
-    char hud_flags[96];
-    char hud_id_line[48];
-    char hud_wrapped_lines[4][256];
-    char hud_body_sanitized[256];
 
     if (!render_ctx || !ui_ctx || !frame || !state) {
         return (CoreResult){ CORE_ERR_INVALID_ARG, "invalid argument" };
@@ -837,7 +831,7 @@ CoreResult mem_console_ui_graph_draw_preview(const KitRenderContext *render_ctx,
         KitRenderRect hud_inner;
         KitRenderRect hud_row;
         const char *raw_body = hovered_node->body_preview[0] ? hovered_node->body_preview : "(no body)";
-        const char *body_text = hud_body_sanitized;
+        const char *body_text = state->graph_hud_body;
 
         if (hud_width < 260.0f) {
             hud_width = 260.0f;
@@ -876,7 +870,10 @@ CoreResult mem_console_ui_graph_draw_preview(const KitRenderContext *render_ctx,
             return result;
         }
 
-        (void)snprintf(hud_id_line, sizeof(hud_id_line), "ID %lld", (long long)hovered_node->item_id);
+        (void)snprintf(state->graph_hud_id_line,
+                       sizeof(state->graph_hud_id_line),
+                       "ID %lld",
+                       (long long)hovered_node->item_id);
         result = mem_console_ui_draw_info_line_custom(ui_ctx,
                                                       frame,
                                                       (KitRenderRect){
@@ -885,7 +882,7 @@ CoreResult mem_console_ui_graph_draw_preview(const KitRenderContext *render_ctx,
                                                           hud_inner.width - 16.0f,
                                                           20.0f
                                                       },
-                                                      hud_id_line,
+                                                      state->graph_hud_id_line,
                                                       CORE_THEME_COLOR_TEXT_MUTED,
                                                       CORE_FONT_ROLE_UI_MEDIUM,
                                                       CORE_FONT_TEXT_SIZE_CAPTION);
@@ -893,13 +890,15 @@ CoreResult mem_console_ui_graph_draw_preview(const KitRenderContext *render_ctx,
             return result;
         }
 
-        format_text_for_width(hud_title,
-                              sizeof(hud_title),
+        format_text_for_width(state->graph_hud_title_raw,
+                              sizeof(state->graph_hud_title_raw),
                               hovered_node->title[0] ? hovered_node->title : "UNTITLED",
                               hud_inner.width - 16.0f,
                               CORE_FONT_TEXT_SIZE_BASIC);
-        sanitize_hud_text(hud_title, hud_title_sanitized, sizeof(hud_title_sanitized));
-        sanitize_hud_text(raw_body, hud_body_sanitized, sizeof(hud_body_sanitized));
+        sanitize_hud_text(state->graph_hud_title_raw,
+                          state->graph_hud_title,
+                          sizeof(state->graph_hud_title));
+        sanitize_hud_text(raw_body, state->graph_hud_body, sizeof(state->graph_hud_body));
         result = mem_console_ui_draw_info_line_custom(ui_ctx,
                                                       frame,
                                                       (KitRenderRect){
@@ -908,7 +907,7 @@ CoreResult mem_console_ui_graph_draw_preview(const KitRenderContext *render_ctx,
                                                           hud_inner.width - 16.0f,
                                                           22.0f
                                                       },
-                                                      hud_title_sanitized,
+                                                      state->graph_hud_title,
                                                       CORE_THEME_COLOR_TEXT_PRIMARY,
                                                       CORE_FONT_ROLE_UI_BOLD,
                                                       CORE_FONT_TEXT_SIZE_PARAGRAPH);
@@ -916,8 +915,8 @@ CoreResult mem_console_ui_graph_draw_preview(const KitRenderContext *render_ctx,
             return result;
         }
 
-        (void)snprintf(hud_flags,
-                       sizeof(hud_flags),
+        (void)snprintf(state->graph_hud_flags,
+                       sizeof(state->graph_hud_flags),
                        "PIN %s | CAN %s",
                        hovered_node->pinned ? "ON" : "OFF",
                        hovered_node->canonical ? "ON" : "OFF");
@@ -929,7 +928,7 @@ CoreResult mem_console_ui_graph_draw_preview(const KitRenderContext *render_ctx,
                                                           hud_inner.width - 16.0f,
                                                           20.0f
                                                       },
-                                                      hud_flags,
+                                                      state->graph_hud_flags,
                                                       CORE_THEME_COLOR_TEXT_MUTED,
                                                       CORE_FONT_ROLE_UI_REGULAR,
                                                       CORE_FONT_TEXT_SIZE_CAPTION);
@@ -945,7 +944,7 @@ CoreResult mem_console_ui_graph_draw_preview(const KitRenderContext *render_ctx,
         };
         result = mem_console_ui_draw_wrapped_text_block(ui_ctx,
                                                         frame,
-                                                        hud_wrapped_lines,
+                                                        state->graph_hud_wrapped_lines,
                                                         4,
                                                         hud_row,
                                                         body_text,

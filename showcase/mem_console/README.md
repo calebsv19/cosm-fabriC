@@ -113,12 +113,12 @@ make -C shared/showcase/mem_console run RUN_ARGS="--db /tmp/mem_console_phase7.s
 Default behavior:
 - running without `--db` resolves in this order:
   1. `CODEWORK_MEMDB_PATH` (if set)
-  2. `~/Desktop/Data/codework_mem_console.sqlite` (if `~/Desktop/Data` exists)
+  2. `~/Desktop/CodeWork/data/codework_mem_console.sqlite` (if `~/Desktop/CodeWork/data` exists)
   3. fallback `shared/showcase/mem_console/demo/demo_mem_console.sqlite`
 - UI preset prefs are read from/written to `<db_path>.ui.pack` for whichever DB path is active
 
 Local workspace behavior:
-- `make -C shared/showcase/mem_console run` and `run-demo` prefer `~/Desktop/Data/codework_mem_console.sqlite` when `~/Desktop/Data` exists
+- `make -C shared/showcase/mem_console run` and `run-demo` prefer `~/Desktop/CodeWork/data/codework_mem_console.sqlite` when `~/Desktop/CodeWork/data` exists
 - demo helper scripts (`reset_demo_db.sh`, `seed_large_list.sh`) also prefer the same Data-path DB when available
 - `CODEWORK_MEMDB_PATH` can override all script defaults explicitly
 

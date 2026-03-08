@@ -54,7 +54,7 @@ int resolve_default_db_path(char *out_path, size_t out_cap) {
 
     home_path = getenv("HOME");
     if (home_path && home_path[0]) {
-        written = snprintf(data_dir, sizeof(data_dir), "%s/Desktop/Data", home_path);
+        written = snprintf(data_dir, sizeof(data_dir), "%s/Desktop/CodeWork/data", home_path);
         if (written > 0 && (size_t)written < sizeof(data_dir) && path_is_directory(data_dir)) {
             written = snprintf(out_path, out_cap, "%s/codework_mem_console.sqlite", data_dir);
             if (written > 0 && (size_t)written < out_cap) {

@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 MEM_CLI="${ROOT_DIR}/shared/core/core_memdb/build/mem_cli"
-DEFAULT_DATA_DIR="${HOME:-}/Desktop/Data"
+DEFAULT_DATA_DIR="${HOME:-}/Desktop/CodeWork/data"
 
 if [[ -n "${CODEWORK_MEMDB_PATH:-}" ]]; then
     DEFAULT_DB_PATH="${CODEWORK_MEMDB_PATH}"
