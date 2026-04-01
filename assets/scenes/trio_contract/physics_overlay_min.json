@@ -1,0 +1,9 @@
+{
+  "space_mode_default": "2d",
+  "extensions": {
+    "physics_sim": {
+      "solver_mode": "semi_implicit",
+      "iterations": 12
+    }
+  }
+}

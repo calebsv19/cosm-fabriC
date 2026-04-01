@@ -1,0 +1,9 @@
+{
+  "space_mode_default": "3d",
+  "extensions": {
+    "ray_tracing": {
+      "integrator": "hybrid",
+      "samples": 32
+    }
+  }
+}
