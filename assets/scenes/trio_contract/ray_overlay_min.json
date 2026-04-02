@@ -1,4 +1,8 @@
 {
+  "overlay_meta": {
+    "producer": "ray_tracing",
+    "logical_clock": 10
+  },
   "space_mode_default": "3d",
   "extensions": {
     "ray_tracing": {

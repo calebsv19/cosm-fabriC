@@ -1,4 +1,8 @@
 {
+  "overlay_meta": {
+    "producer": "physics_sim",
+    "logical_clock": 10
+  },
   "space_mode_default": "2d",
   "extensions": {
     "physics_sim": {
