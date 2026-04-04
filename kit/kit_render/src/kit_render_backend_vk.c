@@ -22,6 +22,7 @@ typedef struct KitRenderVkBackendState {
     TTF_Font *ttf_font_cache[CORE_FONT_ROLE_COUNT][CORE_FONT_TEXT_SIZE_COUNT];
     uint8_t ttf_font_failed[CORE_FONT_ROLE_COUNT][CORE_FONT_TEXT_SIZE_COUNT];
     CoreFontPresetId ttf_cache_preset_id;
+    int ttf_cache_zoom_step;
     int ttf_cache_initialized;
     int ttf_runtime_ready;
     int ttf_runtime_failed;
@@ -222,6 +223,7 @@ static int vk_backend_text_scale(const KitRenderContext *ctx,
                                  const KitRenderTextCommand *text_cmd) {
     CoreFontRoleSpec role_spec;
     int point_size = 0;
+    float zoom_scale = (float)kit_render_text_zoom_percent(ctx) / 100.0f;
 
     if (core_font_resolve_role(&ctx->font, text_cmd->font_role, &role_spec).code != CORE_OK) {
         return 2;
@@ -229,6 +231,7 @@ static int vk_backend_text_scale(const KitRenderContext *ctx,
     if (core_font_point_size_for_tier(&role_spec, text_cmd->text_tier, &point_size).code != CORE_OK) {
         point_size = role_spec.point_size;
     }
+    point_size = (int)((float)point_size * zoom_scale + 0.5f);
     if (point_size < 8) return 1;
     if (point_size < 14) return 2;
     if (point_size < 20) return 3;
@@ -381,9 +384,12 @@ static CoreResult vk_backend_get_ttf_font(KitRenderContext *ctx,
         state->ttf_runtime_ready = 1;
     }
 
-    if (!state->ttf_cache_initialized || state->ttf_cache_preset_id != ctx->font.id) {
+    if (!state->ttf_cache_initialized ||
+        state->ttf_cache_preset_id != ctx->font.id ||
+        state->ttf_cache_zoom_step != kit_render_text_zoom_step(ctx)) {
         vk_backend_clear_font_cache(state);
         state->ttf_cache_preset_id = ctx->font.id;
+        state->ttf_cache_zoom_step = kit_render_text_zoom_step(ctx);
         state->ttf_cache_initialized = 1;
     }
 
@@ -405,8 +411,12 @@ static CoreResult vk_backend_get_ttf_font(KitRenderContext *ctx,
     if (result.code != CORE_OK) {
         point_size = role_spec.point_size;
     }
+    point_size = (point_size * kit_render_text_zoom_percent(ctx)) / 100;
     if (point_size <= 0) {
         point_size = 10;
+    }
+    if (point_size < 6) {
+        point_size = 6;
     }
 
     font_paths[0] = role_spec.primary_path;

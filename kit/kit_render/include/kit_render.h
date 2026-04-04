@@ -139,6 +139,7 @@ typedef struct KitRenderContext {
     KitRenderBackendKind backend;
     CoreThemePreset theme;
     CoreFontPreset font;
+    int text_zoom_step;
     void *backend_state;
     const void *backend_ops;
     int frame_open;
@@ -152,6 +153,11 @@ CoreResult kit_render_context_init(KitRenderContext *ctx,
                                    CoreFontPresetId font_id);
 CoreResult kit_render_set_theme_preset(KitRenderContext *ctx, CoreThemePresetId theme_id);
 CoreResult kit_render_set_font_preset(KitRenderContext *ctx, CoreFontPresetId font_id);
+int kit_render_text_zoom_step(const KitRenderContext *ctx);
+int kit_render_text_zoom_percent(const KitRenderContext *ctx);
+CoreResult kit_render_set_text_zoom_step(KitRenderContext *ctx, int step);
+CoreResult kit_render_adjust_text_zoom_step(KitRenderContext *ctx, int delta);
+CoreResult kit_render_reset_text_zoom_step(KitRenderContext *ctx);
 CoreResult kit_render_attach_external_backend(KitRenderContext *ctx, void *backend_handle);
 CoreResult kit_render_adopt_external_backend(KitRenderContext *ctx,
                                              void *backend_handle,

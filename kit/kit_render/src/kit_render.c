@@ -15,6 +15,17 @@ static CoreResult kit_render_invalid(const char *message) {
     return r;
 }
 
+enum {
+    KIT_RENDER_TEXT_ZOOM_STEP_MIN = -4,
+    KIT_RENDER_TEXT_ZOOM_STEP_MAX = 5
+};
+
+static int kit_render_clamp_int(int value, int min_value, int max_value) {
+    if (value < min_value) return min_value;
+    if (value > max_value) return max_value;
+    return value;
+}
+
 static const KitRenderBackendOps *kit_render_select_backend_ops(KitRenderBackendKind backend) {
     switch (backend) {
         case KIT_RENDER_BACKEND_VULKAN:
@@ -70,6 +81,7 @@ CoreResult kit_render_context_init(KitRenderContext *ctx,
         return result;
     }
 
+    ctx->text_zoom_step = 0;
     ctx->frame_open = 0;
     return ops->init(ctx);
 }
@@ -92,6 +104,44 @@ CoreResult kit_render_set_font_preset(KitRenderContext *ctx, CoreFontPresetId fo
         return kit_render_invalid("cannot change font during frame");
     }
     return core_font_get_preset(font_id, &ctx->font);
+}
+
+int kit_render_text_zoom_step(const KitRenderContext *ctx) {
+    if (!ctx) {
+        return 0;
+    }
+    return kit_render_clamp_int(ctx->text_zoom_step,
+                                KIT_RENDER_TEXT_ZOOM_STEP_MIN,
+                                KIT_RENDER_TEXT_ZOOM_STEP_MAX);
+}
+
+int kit_render_text_zoom_percent(const KitRenderContext *ctx) {
+    int pct = 100 + (kit_render_text_zoom_step(ctx) * 10);
+    return kit_render_clamp_int(pct, 60, 180);
+}
+
+CoreResult kit_render_set_text_zoom_step(KitRenderContext *ctx, int step) {
+    if (!ctx) {
+        return kit_render_invalid("null context");
+    }
+    if (ctx->frame_open) {
+        return kit_render_invalid("cannot change text zoom during frame");
+    }
+    ctx->text_zoom_step = kit_render_clamp_int(step,
+                                               KIT_RENDER_TEXT_ZOOM_STEP_MIN,
+                                               KIT_RENDER_TEXT_ZOOM_STEP_MAX);
+    return core_result_ok();
+}
+
+CoreResult kit_render_adjust_text_zoom_step(KitRenderContext *ctx, int delta) {
+    if (!ctx) {
+        return kit_render_invalid("null context");
+    }
+    return kit_render_set_text_zoom_step(ctx, kit_render_text_zoom_step(ctx) + delta);
+}
+
+CoreResult kit_render_reset_text_zoom_step(KitRenderContext *ctx) {
+    return kit_render_set_text_zoom_step(ctx, 0);
 }
 
 CoreResult kit_render_attach_external_backend(KitRenderContext *ctx, void *backend_handle) {
