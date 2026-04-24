@@ -110,6 +110,29 @@ typedef struct KitRenderTextMetrics {
     float height_px;
 } KitRenderTextMetrics;
 
+typedef enum KitRenderTextHintingMode {
+    KIT_RENDER_TEXT_HINTING_DEFAULT = 0,
+    KIT_RENDER_TEXT_HINTING_LIGHT = 1
+} KitRenderTextHintingMode;
+
+typedef enum KitRenderTextUploadFilter {
+    KIT_RENDER_TEXT_UPLOAD_FILTER_LINEAR = 0,
+    KIT_RENDER_TEXT_UPLOAD_FILTER_NEAREST = 1
+} KitRenderTextUploadFilter;
+
+typedef struct KitRenderResolvedTextRun {
+    CoreFontRoleSpec role_spec;
+    CoreFontTextSizeTier text_tier;
+    int zoom_percent;
+    int logical_point_size;
+    int raster_point_size;
+    float render_scale;
+    float raster_scale;
+    int kerning_enabled;
+    KitRenderTextHintingMode hinting;
+    KitRenderTextUploadFilter upload_filter;
+} KitRenderResolvedTextRun;
+
 typedef struct KitRenderCommand {
     KitRenderCommandKind kind;
     union {
@@ -187,6 +210,11 @@ CoreResult kit_render_measure_text(const KitRenderContext *ctx,
                                    CoreFontTextSizeTier text_tier,
                                    const char *text,
                                    KitRenderTextMetrics *out_metrics);
+CoreResult kit_render_resolve_text_run(const KitRenderContext *ctx,
+                                       CoreFontRoleId font_role,
+                                       CoreFontTextSizeTier text_tier,
+                                       float render_scale,
+                                       KitRenderResolvedTextRun *out_run);
 
 CoreResult kit_render_resolve_theme_color(const KitRenderContext *ctx,
                                           CoreThemeColorToken token,
