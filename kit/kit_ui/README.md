@@ -1,6 +1,6 @@
 # kit_ui
 
-`kit_ui` is the shared widget and layout helper kit built on top of `kit_render`.
+`kit_ui` is the shared immediate-mode widget and layout helper kit built on top of `kit_render`.
 
 It provides pane-hostable UI primitives that render through shared draw commands instead of owning any pane or runtime lifecycle.
 
@@ -30,14 +30,27 @@ The implementation is still intentionally immediate-mode. The goal is reusable, 
 - simple layout allocation helpers
 - reusable control composition
 - light interaction helpers for shared tools
+- clip-stack helpers layered onto the active `kit_render` frame
+- text-measure and text-fit helpers that reuse `kit_render` metrics when available and fall back to lightweight estimates otherwise
 
 `kit_ui` does not own:
 
 - pane lifecycle
 - event loop ownership
+- retained widget trees
+- keyboard focus or text input ownership
 - layout document loading
 - settings or action persistence
 - application-specific behavior
+
+## Contract Notes
+
+- `KitUiContext.render_ctx` is borrowed and must outlive the UI context.
+- All draw helpers are immediate-mode frame helpers. Borrowed label/text pointers only need to remain valid through the current render frame command consumption.
+- `kit_ui` writes commands into the caller-owned `KitRenderCommandBuffer` attached to the active `KitRenderFrame`; it does not retain widget state across frames.
+- Clip-stack depth is bounded by `KIT_UI_CLIP_STACK_MAX`.
+- `kit_ui_fit_text_to_rect(...)` chooses the largest full-fit tier first, then falls back to the smallest height-fitting tier with ellipsis truncation.
+- The Vulkan validation harness is a host-side debug harness, not part of the shared widget contract itself.
 
 ## Progress
 
