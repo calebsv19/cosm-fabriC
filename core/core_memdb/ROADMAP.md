@@ -8,6 +8,9 @@ Current milestone:
   - legacy payload backfill/repair (`event-backfill`)
 - event-first write cutover is now implemented across all mutation lanes:
   - `add`, `pin`, `canonical`, `rollup`, `link-add`, `link-update`, `link-remove`
+- shared boundary is now truth-locked more explicitly:
+  - `core_memdb` owns the SQLite-backed C lifecycle/statement/transaction/migration surface
+  - CLI policy, agent wrappers, nightly maintenance scripts, and host mutation paths remain higher-layer lanes
 
 Next implementation steps:
 - decide when to promote fingerprint enforcement from indexed lookup to hard uniqueness
@@ -17,7 +20,7 @@ Next implementation steps:
 - decide whether neighbor retrieval needs bounded depth-2 traversal or should remain strictly one-hop
 - decide whether to enforce link-kind canonical set at schema layer in addition to CLI write guards
 - add graph hit-test selection handoff and richer link controls in `mem_console`
-- add focused link/tag helper APIs in `core_memdb` only if SQL duplication starts to grow
+- add focused link/tag helper APIs in `core_memdb` only if repeated shared SQL duplication starts to grow enough to justify a narrower C helper boundary
 - decide whether archived rows should be hidden from `show` or remain directly inspectable
 - extend migrations beyond the current v6 event-dual-write schema as new lanes are added
 - extend replay tooling from deterministic apply/rebuild outputs into snapshot+cursor artifacts and unattended restore workflows

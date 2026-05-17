@@ -1,13 +1,30 @@
 # core_memdb
 
-`core_memdb` is the shared-core boundary for the local-first Memory DB system.
+`core_memdb` is the shared-core storage boundary for the local-first Memory DB system.
+
+Contract layers:
+- shared C API:
+  - SQLite-backed DB lifecycle, statement helpers, transactions, and schema migration/bootstrap
+  - current schema target `v6`, with built-in upgrades from `v1` through `v5`
+  - borrowed text-column views remain valid only until the next step/reset/finalize on the same statement
+  - `core_memdb_open()` auto-runs built-in migrations to the module target version
+  - `core_memdb_close()` and `core_memdb_stmt_finalize()` are intentionally idempotent
+- higher layers in this subtree:
+  - `mem_cli` command policy, write budgeting, replay/apply commands, graph retrieval commands, and human/machine-readable output formats
+  - `mem_agent_flow.sh` wrapper policy for bounded agent retrieval and write flows
+  - nightly maintenance and hierarchy-migration scripts under `tools/`
+- out of the shared C API contract:
+  - Memory Console app-local mutation paths
+  - remote sync, VPS/service deployment, product UX, graph UI, and multi-user behavior
+
+This README keeps those layers in one place for operator convenience, but only the shared C API surface in `include/core_memdb.h` is the base library contract.
 
 Current state:
 - Phase 1 foundation complete
 - Phase 2 anti-bloat controls complete
 - SQLite amalgamation vendored and compiled into the module
 
-Implemented capabilities:
+Shared C API capabilities:
 - SQLite-backed lifecycle + statement API (`open`, `close`, `exec`, `prepare`, `step`, `reset`, `finalize`)
 - integer/text/f64/null bind helpers and integer/text column helpers
 - explicit transaction helpers
@@ -16,7 +33,7 @@ Implemented capabilities:
 - current schema target `v6` (with built-in upgrades from `v1` through `v5`)
 - baseline tables for items, tags, links, FTS, and append-only event rows
 
-Current status:
+Higher-layer status in this subtree:
 - the SQLite amalgamation is now vendored under `external/` and compiled into the module archive
 - the core DB API runs against real SQLite handles
 - `mem_cli` supports `add`, `list`, `find`, `show`, `pin`, `canonical`, `item-retag`, `item-archive`, and `rollup`
@@ -140,6 +157,7 @@ Planned outputs:
 - `build/core_memdb_test`
 
 Current gaps / next focus:
+- keep the shared C API boundary narrow; do not move CLI, agent-wrapper, nightly-maintenance, or host policy into `core_memdb` without a separate shared-boundary justification
 - decide whether to promote fingerprint dedupe from policy to hard unique constraint
 - decide if session-budget enforcement should expand beyond `add` into additional write commands
 - evaluate optional per-row failure classification for `batch-add` retries
@@ -151,6 +169,7 @@ Current gaps / next focus:
 - add CLI-level replay/apply fixtures for long-lived multi-session datasets
 
 Recent update notes:
+- `0.28.1`: truth-locked the shared C API versus CLI/tooling layers, documented idempotent close/finalize and auto-migration behavior, and expanded C-level edge coverage for closed/finalized handles and unsupported future migration targets.
 - `0.28.0`: additive `item-archive` CLI lane, manual rollup flow wrapper, stricter nightly/codex rollup script validation, and canonical `mem_console` naming across maintenance helpers.
 
 Current CLI surface:
