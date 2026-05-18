@@ -174,6 +174,7 @@ CoreResult core_trace_export_pack(const CoreTraceSession *session, const char *p
     CoreResult r;
 
     if (!session || !pack_path) return invalid_arg("session/pack_path is null");
+    if (!session->finalized) return invalid_arg("session must be finalized before export");
 
     memset(&h, 0, sizeof(h));
     memset(&w, 0, sizeof(w));
@@ -297,6 +298,8 @@ CoreResult core_trace_import_pack(const char *pack_path, CoreTraceSession *out_s
         out_session->marker_count = (size_t)h.marker_count;
         out_session->stats.markers_emitted = out_session->marker_count;
     }
+
+    out_session->finalized = true;
 
     core_pack_reader_close(&r);
     return core_result_ok();

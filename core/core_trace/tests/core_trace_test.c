@@ -269,6 +269,10 @@ static int test_pack_roundtrip(void) {
     if (r.code != CORE_OK) goto fail;
     r = core_trace_emit_marker(&s, "event", 0.02, "reload");
     if (r.code != CORE_OK) goto fail;
+
+    r = core_trace_export_pack(&s, path);
+    if (r.code == CORE_OK) goto fail;
+
     r = core_trace_finalize(&s);
     if (r.code != CORE_OK) goto fail;
 
@@ -280,6 +284,12 @@ static int test_pack_roundtrip(void) {
     if (core_trace_sample_count(&loaded) != 2u || core_trace_marker_count(&loaded) != 1u) goto fail;
     if (strcmp(core_trace_samples(&loaded)[1].lane, "density_avg") != 0) goto fail;
     if (strcmp(core_trace_markers(&loaded)[0].label, "reload") != 0) goto fail;
+    r = core_trace_emit_sample_f32(&loaded, "dt", 0.03, 0.1f);
+    if (r.code == CORE_OK) goto fail;
+    r = core_trace_emit_marker(&loaded, "event", 0.04, "mutate");
+    if (r.code == CORE_OK) goto fail;
+    r = core_trace_export_pack(&loaded, path);
+    if (r.code != CORE_OK) goto fail;
 
     core_trace_session_reset(&loaded);
     core_trace_session_reset(&s);
