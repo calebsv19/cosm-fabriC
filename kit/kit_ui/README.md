@@ -11,6 +11,7 @@ This module now provides:
 - stack layout helpers (`vstack`, `hstack`)
 - label drawing
 - button drawing
+- richer button spec/state/layout/style helpers for selected, pressed, focused, and variant-aware controls
 - checkbox drawing
 - slider drawing
 - scrollbar drawing for viewport-style panels
@@ -67,6 +68,7 @@ Implemented now:
 9. additive top-anchor content-height helper for virtualized row lists (`kit_ui_scroll_content_height_top_anchor(...)`)
 10. additive clip-stack helpers with nested intersection and pixel-snapped clip rects (`kit_ui_clip_push(...)`, `kit_ui_clip_pop(...)`, `kit_ui_clip_stack_reset(...)`) for pane-safe scrolling and overlap prevention
 11. additive text-measure and text-fit helpers (`kit_ui_measure_text(...)`, `kit_ui_fit_text_to_rect(...)`) for reusable width/height-aware label fitting with tier selection and ellipsis fallback
+12. additive richer button semantics (`kit_ui_button_*`, `kit_ui_draw_button_spec(...)`) so hosts can share selected/pressed/focused/variant-aware button styling without inventing app-local contracts first
 
 ## Planned Growth
 
@@ -74,6 +76,7 @@ Implemented now:
 2. add binding adapters for settings/action/telemetry keys
 3. add simple row/list helpers for inspectors
 4. remain the common control surface for settings, graph inspectors, and debug panes
+5. keep app-specific button preference layers above the shared `kit_ui_button_*` semantic contract unless a second host proves a reusable policy
 
 ## Theme-Scale Style Sync
 

@@ -22,5 +22,5 @@
 
 ## Hardening Notes
 
-- Version `0.8.1` truth-locks the immediate-mode ownership boundary and expands invalid-arg, clip-stack, and text-fit edge coverage.
-- Large-file decomposition is still deferred because the current pass only touches existing helper lanes rather than adding a new subsystem.
+- Version `0.9.0` adds additive button spec/state/layout/style helpers plus shared spec-driven button drawing without broadening retained-state ownership.
+- Large-file decomposition is now partially applied through the extracted `kit_ui_button.c` lane; broader retained-row/editor decomposition remains deferred.

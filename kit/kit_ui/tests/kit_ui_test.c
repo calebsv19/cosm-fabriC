@@ -201,6 +201,74 @@ static int test_widget_rendering(void) {
     return 0;
 }
 
+static int test_button_spec_rendering_and_style(void) {
+    KitRenderContext render_ctx;
+    KitUiContext ui_ctx;
+    KitRenderCommand storage[32];
+    KitRenderCommandBuffer buffer;
+    KitRenderFrame frame;
+    KitUiButtonSpec spec;
+    KitUiButtonLayout layout;
+    KitUiButtonStyle style;
+    CoreResult result;
+
+    result = kit_render_context_init(&render_ctx,
+                                     KIT_RENDER_BACKEND_NULL,
+                                     CORE_THEME_PRESET_DAW_DEFAULT,
+                                     CORE_FONT_PRESET_DAW_DEFAULT);
+    if (result.code != CORE_OK) return 1;
+
+    result = kit_ui_context_init(&ui_ctx, &render_ctx);
+    if (result.code != CORE_OK) return 1;
+
+    kit_ui_button_spec_init(&spec, "Launch");
+    spec.variant = KIT_UI_BUTTON_VARIANT_POSITIVE;
+    spec.state.selected = 1;
+    spec.state.hovered = 1;
+    spec.state.pressed = 1;
+    spec.state.focused = 1;
+    kit_ui_button_layout_init(&layout, 14.0f, 9.0f);
+
+    if (!kit_ui_button_style_resolve_preset(&render_ctx.theme, &spec, &style)) {
+        fprintf(stderr, "button style resolve failed\n");
+        return 1;
+    }
+    if (style.fill.a != 255u || style.outline.a != 255u || style.text.a != 255u) {
+        fprintf(stderr, "button style alpha should stay opaque\n");
+        return 1;
+    }
+
+    buffer.commands = storage;
+    buffer.capacity = 32;
+    buffer.count = 0;
+    result = kit_render_begin_frame(&render_ctx, 800, 600, &buffer, &frame);
+    if (result.code != CORE_OK) return 1;
+
+    result = kit_ui_draw_button_spec(&ui_ctx,
+                                     &frame,
+                                     (KitRenderRect){20.0f, 20.0f, 160.0f, 32.0f},
+                                     &spec,
+                                     &layout);
+    if (result.code != CORE_OK) return 1;
+
+    if (buffer.count != 6u) {
+        fprintf(stderr, "expected 6 commands for button spec draw, got %zu\n", buffer.count);
+        return 1;
+    }
+    if (buffer.commands[0].kind != KIT_RENDER_CMD_RECT) return 1;
+    if (buffer.commands[1].kind != KIT_RENDER_CMD_LINE) return 1;
+    if (buffer.commands[2].kind != KIT_RENDER_CMD_LINE) return 1;
+    if (buffer.commands[3].kind != KIT_RENDER_CMD_LINE) return 1;
+    if (buffer.commands[4].kind != KIT_RENDER_CMD_LINE) return 1;
+    if (buffer.commands[5].kind != KIT_RENDER_CMD_TEXT) return 1;
+    if (!nearf(buffer.commands[5].data.text.origin.x, 34.0f)) return 1;
+    if (!nearf(buffer.commands[5].data.text.origin.y, 29.0f)) return 1;
+
+    result = kit_render_end_frame(&render_ctx, &frame);
+    if (result.code != CORE_OK) return 1;
+    return 0;
+}
+
 static int test_input_and_behaviors(void) {
     KitUiInputState input;
     KitRenderRect bounds = {10.0f, 20.0f, 100.0f, 30.0f};
@@ -628,6 +696,7 @@ int main(void) {
     if (test_stack_layout() != 0) return 1;
     if (test_invalid_layout_args() != 0) return 1;
     if (test_widget_rendering() != 0) return 1;
+    if (test_button_spec_rendering_and_style() != 0) return 1;
     if (test_input_and_behaviors() != 0) return 1;
     if (test_input_edge_behaviors() != 0) return 1;
     if (test_scroll_top_anchor_content_height() != 0) return 1;
