@@ -256,10 +256,10 @@ static int test_button_spec_rendering_and_style(void) {
         return 1;
     }
     if (buffer.commands[0].kind != KIT_RENDER_CMD_RECT) return 1;
-    if (buffer.commands[1].kind != KIT_RENDER_CMD_LINE) return 1;
-    if (buffer.commands[2].kind != KIT_RENDER_CMD_LINE) return 1;
-    if (buffer.commands[3].kind != KIT_RENDER_CMD_LINE) return 1;
-    if (buffer.commands[4].kind != KIT_RENDER_CMD_LINE) return 1;
+    if (buffer.commands[1].kind != KIT_RENDER_CMD_RECT) return 1;
+    if (buffer.commands[2].kind != KIT_RENDER_CMD_RECT) return 1;
+    if (buffer.commands[3].kind != KIT_RENDER_CMD_RECT) return 1;
+    if (buffer.commands[4].kind != KIT_RENDER_CMD_RECT) return 1;
     if (buffer.commands[5].kind != KIT_RENDER_CMD_TEXT) return 1;
     if (!nearf(buffer.commands[5].data.text.origin.x, 34.0f)) return 1;
     if (!nearf(buffer.commands[5].data.text.origin.y, 29.0f)) return 1;

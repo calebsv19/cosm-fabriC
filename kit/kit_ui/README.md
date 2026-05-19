@@ -69,6 +69,7 @@ Implemented now:
 10. additive clip-stack helpers with nested intersection and pixel-snapped clip rects (`kit_ui_clip_push(...)`, `kit_ui_clip_pop(...)`, `kit_ui_clip_stack_reset(...)`) for pane-safe scrolling and overlap prevention
 11. additive text-measure and text-fit helpers (`kit_ui_measure_text(...)`, `kit_ui_fit_text_to_rect(...)`) for reusable width/height-aware label fitting with tier selection and ellipsis fallback
 12. additive richer button semantics (`kit_ui_button_*`, `kit_ui_draw_button_spec(...)`) so hosts can share selected/pressed/focused/variant-aware button styling without inventing app-local contracts first
+13. additive 1px button-outline hardening so shared button borders avoid corner overrun artifacts across snapped pixel densities by emitting edge rects instead of endpoint-sensitive line segments
 
 ## Planned Growth
 

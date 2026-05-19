@@ -45,6 +45,60 @@ static void kit_ui_button_theme_resolve_color(const CoreThemePreset *preset,
     *out_color = fallback;
 }
 
+static CoreResult kit_ui_button_push_outline(KitRenderFrame *frame,
+                                             KitRenderRect bounds,
+                                             KitRenderColor color) {
+    KitRenderRectCommand edge_cmd;
+    CoreResult result;
+
+    if (frame == 0 || bounds.width <= 0.0f || bounds.height <= 0.0f) {
+        CoreResult invalid = { CORE_ERR_INVALID_ARG, "invalid button outline bounds" };
+        return invalid;
+    }
+
+    edge_cmd.corner_radius = 0.0f;
+    edge_cmd.color = color;
+    edge_cmd.transform = kit_render_identity_transform();
+
+    edge_cmd.rect = (KitRenderRect){ bounds.x, bounds.y, bounds.width, 1.0f };
+    result = kit_render_push_rect(frame, &edge_cmd);
+    if (result.code != CORE_OK) {
+        return result;
+    }
+
+    if (bounds.height > 1.0f) {
+        edge_cmd.rect =
+            (KitRenderRect){ bounds.x, bounds.y + bounds.height - 1.0f, bounds.width, 1.0f };
+        result = kit_render_push_rect(frame, &edge_cmd);
+        if (result.code != CORE_OK) {
+            return result;
+        }
+    }
+
+    if (bounds.height > 2.0f) {
+        edge_cmd.rect = (KitRenderRect){ bounds.x, bounds.y + 1.0f, 1.0f, bounds.height - 2.0f };
+        result = kit_render_push_rect(frame, &edge_cmd);
+        if (result.code != CORE_OK) {
+            return result;
+        }
+
+        if (bounds.width > 1.0f) {
+            edge_cmd.rect = (KitRenderRect){
+                bounds.x + bounds.width - 1.0f,
+                bounds.y + 1.0f,
+                1.0f,
+                bounds.height - 2.0f
+            };
+            result = kit_render_push_rect(frame, &edge_cmd);
+            if (result.code != CORE_OK) {
+                return result;
+            }
+        }
+    }
+
+    return result;
+}
+
 void kit_ui_button_state_init(KitUiButtonState *state) {
     if (state == 0) {
         return;
@@ -229,7 +283,6 @@ CoreResult kit_ui_draw_button_spec_custom(KitUiContext *ctx,
                                           CoreFontTextSizeTier text_tier) {
     KitUiButtonStyle style;
     KitRenderRectCommand rect_cmd;
-    KitRenderLineCommand line_cmd;
     KitRenderTextCommand text_cmd;
     CoreThemeColorToken text_token;
     float text_x;
@@ -254,41 +307,10 @@ CoreResult kit_ui_draw_button_spec_custom(KitUiContext *ctx,
         return result;
     }
 
-    line_cmd.thickness = 1.0f;
-    line_cmd.color = (KitRenderColor){style.outline.r,
-                                      style.outline.g,
-                                      style.outline.b,
-                                      style.outline.a};
-    line_cmd.transform = kit_render_identity_transform();
-    line_cmd.p0.x = bounds.x;
-    line_cmd.p0.y = bounds.y;
-    line_cmd.p1.x = bounds.x + bounds.width;
-    line_cmd.p1.y = bounds.y;
-    result = kit_render_push_line(frame, &line_cmd);
-    if (result.code != CORE_OK) {
-        return result;
-    }
-    line_cmd.p0.x = bounds.x;
-    line_cmd.p0.y = bounds.y + bounds.height - 1.0f;
-    line_cmd.p1.x = bounds.x + bounds.width;
-    line_cmd.p1.y = bounds.y + bounds.height - 1.0f;
-    result = kit_render_push_line(frame, &line_cmd);
-    if (result.code != CORE_OK) {
-        return result;
-    }
-    line_cmd.p0.x = bounds.x;
-    line_cmd.p0.y = bounds.y;
-    line_cmd.p1.x = bounds.x;
-    line_cmd.p1.y = bounds.y + bounds.height;
-    result = kit_render_push_line(frame, &line_cmd);
-    if (result.code != CORE_OK) {
-        return result;
-    }
-    line_cmd.p0.x = bounds.x + bounds.width - 1.0f;
-    line_cmd.p0.y = bounds.y;
-    line_cmd.p1.x = bounds.x + bounds.width - 1.0f;
-    line_cmd.p1.y = bounds.y + bounds.height;
-    result = kit_render_push_line(frame, &line_cmd);
+    result = kit_ui_button_push_outline(
+        frame,
+        bounds,
+        (KitRenderColor){ style.outline.r, style.outline.g, style.outline.b, style.outline.a });
     if (result.code != CORE_OK) {
         return result;
     }

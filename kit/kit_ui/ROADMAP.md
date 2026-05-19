@@ -22,5 +22,6 @@
 
 ## Hardening Notes
 
+- Version `0.9.1` keeps the `0.9.0` button semantics contract intact while hardening 1px shared button borders against corner overrun artifacts on snapped pixel grids.
 - Version `0.9.0` adds additive button spec/state/layout/style helpers plus shared spec-driven button drawing without broadening retained-state ownership.
 - Large-file decomposition is now partially applied through the extracted `kit_ui_button.c` lane; broader retained-row/editor decomposition remains deferred.
