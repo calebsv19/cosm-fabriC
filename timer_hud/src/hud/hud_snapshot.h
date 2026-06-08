@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #define TIMER_HUD_ROW_TEXT_MAX 256
+#define TIMER_HUD_GRAPH_LABEL_MAX 64
 
 typedef enum TimerHUDAnchor {
     TIMER_HUD_ANCHOR_TOP_LEFT = 0,
@@ -21,6 +22,7 @@ typedef enum TimerHUDAnchor {
 typedef struct TimerHUDGraphSnapshot {
     size_t sample_count;
     double scale_max_ms;
+    char scale_label[TIMER_HUD_GRAPH_LABEL_MAX];
     double samples[TIMER_HISTORY_SIZE];
 } TimerHUDGraphSnapshot;
 

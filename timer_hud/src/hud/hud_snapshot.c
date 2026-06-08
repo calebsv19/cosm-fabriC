@@ -1,4 +1,5 @@
 #include "hud_snapshot.h"
+#include "hud_format.h"
 
 #include "../core/session.h"
 #include <stdio.h>
@@ -28,36 +29,47 @@ static void build_timer_text(const TimerHUDSettings* settings,
                              const Timer* timer,
                              char* out,
                              size_t out_cap) {
+    char avg_text[32];
+    char min_text[32];
+    char max_text[32];
+    char stddev_text[32];
+
     if (!timer || !out || out_cap == 0) {
         return;
     }
 
+    hud_format_duration_ms(timer->avg, avg_text, sizeof(avg_text));
+    hud_format_duration_ms(timer->min, min_text, sizeof(min_text));
+    hud_format_duration_ms(timer->max, max_text, sizeof(max_text));
+    hud_format_duration_ms(timer->stddev, stddev_text, sizeof(stddev_text));
+
     if (!settings || !settings->hud_compact_text) {
         snprintf(out,
                  out_cap,
-                 "%s: %.2f ms (min %.2f / max %.2f / sigma %.2f)",
+                 "%s: avg %s (min %s / max %s / sigma %s)",
                  timer->name,
-                 timer->avg,
-                 timer->min,
-                 timer->max,
-                 timer->stddev);
+                 avg_text,
+                 min_text,
+                 max_text,
+                 stddev_text);
         return;
     }
 
-    int used = snprintf(out, out_cap, "%s %.2fms", timer->name, timer->avg);
+    int used = snprintf(out,
+                        out_cap,
+                        settings->hud_show_avg ? "%s avg %s" : "%s %s",
+                        timer->name,
+                        avg_text);
     if (used < 0 || (size_t)used >= out_cap) {
         out[out_cap - 1] = '\0';
         return;
     }
 
-    if (settings->hud_show_avg) {
-        used += snprintf(out + used, out_cap - (size_t)used, " avg %.2f", timer->avg);
-    }
     if (settings->hud_show_minmax) {
-        used += snprintf(out + used, out_cap - (size_t)used, " min %.2f max %.2f", timer->min, timer->max);
+        used += snprintf(out + used, out_cap - (size_t)used, " min %s max %s", min_text, max_text);
     }
     if (settings->hud_show_stddev) {
-        (void)snprintf(out + used, out_cap - (size_t)used, " sd %.2f", timer->stddev);
+        (void)snprintf(out + used, out_cap - (size_t)used, " sd %s", stddev_text);
     }
 }
 
@@ -148,6 +160,7 @@ bool hud_snapshot_build(TimerHUDSession* session, TimerHUDRenderSnapshot* out_sn
 
             {
                 size_t requested_samples = (size_t)settings->hud_graph_samples;
+                char scale_text[32];
                 row->graph.sample_count = timer_copy_history(timer,
                                                              row->graph.samples,
                                                              requested_samples);
@@ -156,6 +169,8 @@ bool hud_snapshot_build(TimerHUDSession* session, TimerHUDRenderSnapshot* out_sn
                                                                   (size_t)i,
                                                                   row->graph.samples,
                                                                   row->graph.sample_count);
+                hud_format_duration_ms(row->graph.scale_max_ms, scale_text, sizeof(scale_text));
+                snprintf(row->graph.scale_label, sizeof(row->graph.scale_label), "max %s", scale_text);
             }
         }
     }

@@ -13,7 +13,8 @@
 #define HUD_GRAPH_BG_COLOR (TimerHUDColor){18, 18, 18, 120}
 #define HUD_SCALE_TEXT_COLOR (TimerHUDColor){180, 180, 180, 255}
 #define HUD_GRAPH_ROW_PADDING 3
-#define HUD_GRAPH_TEXT_GAP 2
+#define HUD_GRAPH_TEXT_GAP 3
+#define HUD_HEADER_LABEL_GAP 14
 
 static int get_padding(const TimerHUDSession* session) {
     if (session && session->backend && session->backend->hud_padding > 0) return session->backend->hud_padding;
@@ -111,15 +112,6 @@ static void draw_graph(const TimerHUDSession* session,
         has_prev = 1;
     }
 
-    char scale_line[64];
-    snprintf(scale_line, sizeof(scale_line), "%.2fms max", graph->scale_max_ms);
-    int scale_x = x + w - 2;
-    int scale_y = y + 1;
-    session->backend->draw_text(scale_line,
-                                scale_x,
-                                scale_y,
-                                TIMER_HUD_ALIGN_TOP | TIMER_HUD_ALIGN_RIGHT,
-                                HUD_SCALE_TEXT_COLOR);
 }
 
 void hud_set_backend(TimerHUDSession* session, const TimerHUDBackend* backend) {
@@ -181,10 +173,21 @@ void hud_render(TimerHUDSession* session) {
     for (int i = 0; i < snapshot.row_count; ++i) {
         int textW = 0;
         int textH = 0;
+        int scaleW = 0;
+        int scaleH = 0;
         backend_measure_text(session, snapshot.rows[i].text, &textW, &textH);
         int content_w = textW;
-        if (graph_enabled && snapshot.graph_width > content_w) {
-            content_w = snapshot.graph_width;
+        if (graph_enabled) {
+            backend_measure_text(session, snapshot.rows[i].graph.scale_label, &scaleW, &scaleH);
+            if (scaleW > 0) {
+                int header_w = textW + HUD_HEADER_LABEL_GAP + scaleW;
+                if (header_w > content_w) {
+                    content_w = header_w;
+                }
+            }
+            if (snapshot.graph_width > content_w) {
+                content_w = snapshot.graph_width;
+            }
         }
 
         int h = fontHeight + graph_padding * 2;
@@ -246,6 +249,16 @@ void hud_render(TimerHUDSession* session) {
             int graph_w = snapshot.graph_width;
             int graph_x = rightAlign ? (card_x + card_w - graph_padding - graph_w) : (card_x + graph_padding);
             int graph_y = y + graph_padding + fontHeight + HUD_GRAPH_TEXT_GAP;
+            int scale_x = rightAlign ? (card_x + graph_padding) : (card_x + card_w - graph_padding);
+            int scale_align = TIMER_HUD_ALIGN_TOP | (rightAlign ? TIMER_HUD_ALIGN_LEFT : TIMER_HUD_ALIGN_RIGHT);
+
+            if (snapshot.rows[i].graph.scale_label[0] != '\0') {
+                session->backend->draw_text(snapshot.rows[i].graph.scale_label,
+                                            scale_x,
+                                            y + graph_padding,
+                                            scale_align,
+                                            HUD_SCALE_TEXT_COLOR);
+            }
 
             draw_graph(session, &snapshot.rows[i].graph, graph_x, graph_y, graph_w, snapshot.graph_height);
         }
