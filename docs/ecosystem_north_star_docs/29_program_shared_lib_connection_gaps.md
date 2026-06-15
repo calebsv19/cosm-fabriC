@@ -405,6 +405,12 @@ Current shared profile:
   button spec/state/style semantics through the app-local
   `physics_sim_ui_button` SDL wrapper.
 - `core_sim >= 0.2.0` is now partially adopted for scene-level runtime stepping and the 3D solver first-pass shell: `SceneState` owns persistent loop state, the frame substep loop runs through seven ordered simulation passes, the scaffold backend owns nested solver loop state, and frame outcome diagnostics are test-covered.
+- `core_mesh_preview >= 0.4.0` is now partially adopted through an app-local
+  runtime mesh preview bridge: runtime-scene `mesh_asset_instance` records can
+  resolve runtime mesh paths, derive preview sidecar paths, and attach
+  probe/metadata state without loading full preview payloads, then draw
+  transform-aware preview AABBs in retained editor and running simulation
+  overlays.
 - the host now consumes those shared modules through a vendored `third_party/codework_shared` subtree instead of direct workspace-local `../shared` linkage.
 - `core_data` and `core_trace` partial.
 
@@ -417,6 +423,11 @@ Gaps:
   spec/state/style semantics while SDL drawing, palette tuning, and exact
   menu/editor placement remain app-local.
 - `Stabilize`: Workspace Authoring `PSWA1-S1/S2/S3/S4/S5` is complete on the menu/editor shell; shared `kit_workspace_authoring >= 0.5.0` owns the entry/toggle chord, active reserved-trigger capture, active pane-overlay button geometry/hit testing, and full-screen Font/Theme layout/hit/action semantics while SDL drawing, pane/module labels, `SceneEditorPaneHost` geometry readout, runtime preview mutation, and accepted-only persistence remain app-local. Apply saves theme/font/text-size through ignored `data/runtime` state, Cancel/shutdown restore active previews without saving, and S5 closed as docs/status only with no additional app commit.
+- `Stabilize`: first `core_mesh_preview >= 0.4.0` adoption is now in place for
+  runtime mesh preview diagnostics plus retained editor/runtime overlay
+  preview bounds. Keep collision proxies, obstacle truth, SDFs, solver
+  projection, and physics semantics app-local while shared preview sidecars
+  provide bounded path/probe/metadata/bounds state for visual inspection.
 - `Partial`: deepen `core_data` model breadth beyond current export tables into broader sim-domain datasets.
 - `Partial`: further align `core_pack` payload semantics with canonical `core_data` schema.
 - `Partial`: standardize `core_trace` lanes/contracts beyond tooling-centric usage.
