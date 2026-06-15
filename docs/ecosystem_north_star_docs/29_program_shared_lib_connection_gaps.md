@@ -507,6 +507,12 @@ Gaps:
   workspace-shared fallback until the vendored subtree includes
   `core_mesh_asset`; keep native `3D` triangle generation and BVH out of this
   shared contract.
+- `Partial`: first `core_mesh_preview >= 0.4.0` cutover is now in place for
+  runtime mesh preview diagnostics. The runtime mesh asset loader records
+  derived preview sidecar paths, probe state, and metadata for loaded assets
+  plus preview-limited skipped instances, allowing editor/digest/UI follow-up
+  without loading full preview arrays. Keep final render geometry, material
+  semantics, native `3D` triangle expansion, and BVH construction app-local.
 - `Partial`: TimerHUD host adoption is now on the explicit `TimerHUDSession` path for `ray_tracing`: the app owns session creation/config, frame and per-pass timer hooks now route through session APIs, and the packaged launcher exports runtime-owned TimerHUD settings/output defaults with the overlay forced on for proof. The remaining follow-up is vendored `third_party/codework_shared/timer_hud` subtree refresh in a clean worktree so the default subtree-backed build matches the live shared-root verification path.
 - `Partial`: native `3D` tile scheduling now uses shared `core_queue` and
   `core_workers` for bounded completion handoff plus worker-pool dispatch; keep
